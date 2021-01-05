@@ -454,10 +454,51 @@ void a_star_search(int grid[][COL], Pair src, Pair dest) {
     }
 }
 
+void dijkstra_search(int obstacles[][COL], Pair start, Pair goal)
+{
+    // searched path
+    stack<Pair> path;
+
+    // list of calculating nodes
+    queue<pPair> open;
+    // store start node and cost
+    open.push(make_pair(0.0, make_pair(start.first, start.second)));
+
+    // flag of found goad
+    bool found_goal = false;
+
+    // searching
+    while(!open.empty())
+    {
+        // get node from open list
+        pPair node_open = open.front();
+        open.pop();
+
+        // check goal found
+        if (is_destination(node_open.second.first, node_open.second.second, goal))
+        {
+            cout << "Found Goal" << endl;
+            found_goal = true;
+            break;
+        }
+
+        // adjacent nodes
+        // 8 direction
+
+    }
+
+    // open list is empty
+    // Path not found
+    if (!found_goal)
+    {
+        cout << "Path not found" << endl;
+    }
+}
+
 int main() {
     // 1 --> cell is not blocked
     // 0 --> cell is blocked
-    int grid[ROW][COL] = {
+    int obstacles[ROW][COL] = {
             {1, 0, 1, 1, 1, 1, 0, 1, 1, 1},
             {1, 1, 1, 0, 1, 1, 1, 0, 1, 1},
             {1, 1, 1, 0, 1, 1, 0, 1, 0, 1},
@@ -469,13 +510,13 @@ int main() {
             {1, 1, 1, 0, 0, 0, 1, 0, 0, 1}
     };
 
-    // source is the left-most bottom-most corner
-    Pair src = make_pair(8, 0);
+    // start point
+    Pair start = make_pair(8, 0);
 
-    // destination is the left-most top-most corner
-    Pair dest = make_pair(0, 9);
+    // goal point
+    Pair goal = make_pair(0, 9);
 
-    a_star_search(grid, src, dest);
+     dijkstra_search(obstacles, start, goal);
 
     return 0;
 }
