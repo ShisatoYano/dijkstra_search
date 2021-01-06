@@ -5,9 +5,11 @@ using namespace std;
 #define ROW 9
 #define COL 10
 
-typedef pair<int, int> Pair;
+typedef pair<int, int> Pair; // (x, y)
 
-typedef pair<double, pair<int, int>> pPair;
+typedef pair<double, pair<int, int>> CostPair; // (cost, (x, y))
+
+typedef pair<double, pair<Pair, Pair>> ParentPair; // (cost, ((x, y), (px, py)))
 
 struct Cell {
     int parent_i; // 0 <= i <= ROW-1
@@ -130,7 +132,7 @@ void a_star_search(int grid[][COL], Pair src, Pair dest) {
     cell_details[i][j].parent_j = j;
 
     // create open list <f, <i, j>>, f = g + h
-    set<pPair> open_list;
+    set<CostPair> open_list;
 
     // put starting cell on open list
     // set its f as 0
@@ -139,7 +141,7 @@ void a_star_search(int grid[][COL], Pair src, Pair dest) {
     bool found_dest = false;
 
     while (!open_list.empty()) {
-        pPair p = *open_list.begin();
+        CostPair p = *open_list.begin();
         open_list.erase(open_list.begin());
 
         // add this vertex to closest list
@@ -454,15 +456,20 @@ void a_star_search(int grid[][COL], Pair src, Pair dest) {
     }
 }
 
-void dijkstra_search(int obstacles[][COL], Pair start, Pair goal)
+void dijkstra_search(int obstacles[][COL], const vector<CostPair>& adjacent, Pair start, Pair goal)
 {
     // searched path
     stack<Pair> path;
 
     // list of calculating nodes
-    queue<pPair> open;
-    // store start node and cost
-    open.push(make_pair(0.0, make_pair(start.first, start.second)));
+    queue<ParentPair> open;
+    // store start node data (cost, ((x, y), (px, py)))
+    open.push(make_pair(0.0,
+                        make_pair(make_pair(start.first, start.second),
+                                  make_pair(start.first, start.second))));
+
+    // list of calculated nodes
+    queue<ParentPair> close;
 
     // flag of found goad
     bool found_goal = false;
@@ -471,11 +478,11 @@ void dijkstra_search(int obstacles[][COL], Pair start, Pair goal)
     while(!open.empty())
     {
         // get node from open list
-        pPair node_open = open.front();
+        ParentPair nop = open.front();
         open.pop();
 
         // check goal found
-        if (is_destination(node_open.second.first, node_open.second.second, goal))
+        if (is_destination(nop.second.first.first, nop.second.first.second, goal))
         {
             cout << "Found Goal" << endl;
             found_goal = true;
@@ -484,7 +491,21 @@ void dijkstra_search(int obstacles[][COL], Pair start, Pair goal)
 
         // adjacent nodes
         // 8 direction
+        int adj_r, adj_c;
+        double adj_cost;
+        ParentPair adj_node;
+        for (auto adj : adjacent)
+        {
+            adj_r = nop.second.first.first + adj.second.first; // row
+            adj_c = nop.second.first.second + adj.second.second; // col
+            adj_cost = nop.first + adj.first; // cost
 
+            // inside grid
+            if (is_valid(adj_r, adj_c))
+            {
+
+            }
+        }
     }
 
     // open list is empty
@@ -510,13 +531,25 @@ int main() {
             {1, 1, 1, 0, 0, 0, 1, 0, 0, 1}
     };
 
+    // adjacent nodes
+    // pair(cost, (dx, dy))
+    vector<CostPair> adjacent;
+    adjacent.push_back(make_pair(1.0, make_pair(-1, 0))); // north
+    adjacent.push_back(make_pair(1.0, make_pair(1, 0))); // south
+    adjacent.push_back(make_pair(1.0, make_pair(0, 1))); // east
+    adjacent.push_back(make_pair(1.0, make_pair(0, -1))); // west
+    adjacent.push_back(make_pair(1.414, make_pair(-1, 1))); // north-east
+    adjacent.push_back(make_pair(1.414, make_pair(-1, -1))); // north-west
+    adjacent.push_back(make_pair(1.414, make_pair(1, 1))); // south-east
+    adjacent.push_back(make_pair(1.414, make_pair(1, -1))); // south-west
+
     // start point
     Pair start = make_pair(8, 0);
 
     // goal point
     Pair goal = make_pair(0, 9);
 
-     dijkstra_search(obstacles, start, goal);
+     dijkstra_search(obstacles, adjacent, start, goal);
 
     return 0;
 }
