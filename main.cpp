@@ -86,11 +86,45 @@ Pair is_in_list(ParentPair node, const vector<ParentPair>& open, const vector<Pa
     return flag_index;
 }
 
+void print_path(const vector<ParentPair>& close, Pair start)
+{
+    int idx = close.size() - 1;
+
+    while (true)
+    {
+        ParentPair node = close[idx];
+
+        // reached at start node
+        if (is_same_pos(close[idx].second.first.first,
+                        close[idx].second.first.second,
+                        start.first, start.second))
+        {
+            cout << "(" << close[idx].second.first.first << ", "
+                 << close[idx].second.first.second << ")";
+            break;
+        }
+        else
+        {
+            cout << "(" << close[idx].second.first.first << ", "
+                 << close[idx].second.first.second << ")" << "->";
+        }
+
+        // search parent node from close list
+        for (int i = 0; i < close.size(); ++i) {
+            if (is_same_pos(close[i].second.first.first,
+                            close[i].second.first.second,
+                            close[idx].second.second.first,
+                            close[idx].second.second.second))
+            {
+                idx = i;
+                break;
+            }
+        }
+    }
+}
+
 void dijkstra_search(int obstacles[][COL], const vector<CostPair>& adjacent, Pair start, Pair goal)
 {
-    // searched path
-    stack<Pair> path;
-
     // list of calculating nodes
     vector<ParentPair> open;
     // store start node data (cost, ((x, y), (px, py)))
@@ -116,6 +150,7 @@ void dijkstra_search(int obstacles[][COL], const vector<CostPair>& adjacent, Pai
         {
             cout << "Found Goal" << endl;
             found_goal = true;
+            close.push_back(nop);
             break;
         }
         else
@@ -179,9 +214,11 @@ void dijkstra_search(int obstacles[][COL], const vector<CostPair>& adjacent, Pai
         }
     }
 
-    // open list is empty
-    // Path not found
-    if (!found_goal)
+    if (found_goal)
+    {
+        print_path(close, start);
+    }
+    else
     {
         cout << "Path not found" << endl;
     }
@@ -220,7 +257,7 @@ int main() {
     // goal point
     Pair goal = make_pair(0, 9);
 
-     dijkstra_search(obstacles, adjacent, start, goal);
+    dijkstra_search(obstacles, adjacent, start, goal);
 
     return 0;
 }
